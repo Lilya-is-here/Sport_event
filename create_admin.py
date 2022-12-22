@@ -20,14 +20,9 @@ with app.app_context():
         print('Пароли не одинаковые')
         sys.exit(0)
 
-    new_user =User(username=username, role='admin')
+    new_user = User(username=username, role='admin')
     new_user.set_password(password1)
 
     db.session.add(new_user)
     db.session.commit()
     print('Создан пользователь с id={}'.format(new_user.id))
-
-
-
-
-
