@@ -1,6 +1,6 @@
 .vscode/
 config.py
-webapp.db
+*.db
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
