@@ -13,7 +13,7 @@
                     </div>
                 {% endif %}
               {% endwith %}
-                    <form action="{{ url_for('user.process_login') }}" method="post">
+                    <form action="{{ url_for('user_blueprint.process_login') }}" method="post">
                     {{ form.hidden_tag() }}
                     <div class="form-group">
                         {{ form.username.label }} <br>

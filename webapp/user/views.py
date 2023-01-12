@@ -1,10 +1,11 @@
-from flask_login import current_user, login_user, logout_user
 from flask import Blueprint, flash, render_template, redirect, url_for
+from flask_login import current_user, login_user, logout_user
+from flask_security import login_required 
 from webapp.user.forms import LoginForm, RegistrationForm
 from webapp.user.models import User
 from webapp.model import db
 
-blueprint = Blueprint('user', __name__, url_prefix='/users')
+blueprint = Blueprint('user_blueprint', __name__, url_prefix='/users')
 
 
 @blueprint.route('/login')
@@ -31,7 +32,7 @@ def process_login():
             return redirect(url_for('index'))
 
     flash('Неправильные имя или пароль')
-    return redirect(url_for('user.login'))
+    return redirect(url_for('user_blueprint.login'))
 
 
 @blueprint.route('/logout')
@@ -65,11 +66,18 @@ def process_reg():
         db.session.add(new_user)
         db.session.commit()
         flash('Вы успешно зарегистрировались')
-        return redirect(url_for('user.login'))
+        return redirect(url_for('user_blueprint.login'))
     else:
         for field, errors in form.errors.items():
             for error in errors:
                 flash('Ошибка в поле {} : {}'.format(
                     getattr(form, field).label.text, error
                     ))
-        return redirect(url_for('user.register'))
+        return redirect(url_for('user_blueprint.register'))
+
+@blueprint.route('/profile')
+@login_required
+def profile():
+    title = "Sport event"
+    headline = "Profile"
+    return render_template("user/profile.html", title=title, headline=headline)
