@@ -27,19 +27,18 @@ def create_app():
 
     migrate = Migrate(app, db)
 
-    class AdminView(ModelView):
+    class AdminMixin:
         def is_accessible(self):
             return current_user.has_role('admin')
 
-        def inaccessible_callback(self, name):
-            return redirect(url_for(security.login, next=request.url))
+        def inaccessible_callback(self, name, **kwargs):
+            return redirect(url_for('security.login', next=request.url))
 
-    class HomeAdminView(AdminIndexView):
-        def is_accessible(self):
-            return current_user.has_role('admin')
+    class AdminView(AdminMixin, ModelView):
+        pass
 
-        def inaccessible_callback(self, name):
-            return redirect(url_for(security.login, next=request.url))
+    class HomeAdminView(AdminMixin, AdminIndexView):
+        pass
 
     admin = Admin(app, 'FlaskApp', url='/',
                   index_view=HomeAdminView(name='Home'))
