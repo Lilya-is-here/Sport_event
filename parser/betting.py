@@ -1,67 +1,55 @@
-import requests             #импортируем библиотеку реквест
+import requests
+from loguru import logger
+import json
+from datetime import datetime
 
-from bs4 import BeautifulSoup           #импортируем библотеку beautifulsoup(для извлечения данных из html)     
+logger.add('debug.log', format='{time} {level} {message}', level='DEBUG', colorize=True)
 
-
-def get_html(url):                        #ф-я принимает url
-    try:                                    
-        result = requests.get(url)          #с помощью request берем данные с этого url
-        result.raise_for_status()           #если проблема, мы обработаем исключение
-        return result.text                  #ессли все ок возвращаем текст
-    except(requests.RequestException, ValueError):          #исключения, проблемы с сервером
-        return False
-
-
-
-'''
- id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    sport = db.Column(db.String, nullable=False)
-    time = db.Column(db.DateTime, nullable=True, default=datetime.now())
-    result = db.Column(db.String, nullable=False)
-    coefficient 
-'''
-
-
-
-def id(html):
-    soup = BeautifulSoup(html, 'html.parser')
-    raw_data = soup.find('div', id = 'games_content').find_all('c-events__item_game')
-    print(raw_data)
-
-
-
-
-
-#def resultW1(html):
-#    soup = BeautifulSoup(html, 'html.parser')
-#   resultW1 = soup.find('div', class_ = "c-bets").findAll('span')
-#    print (resultW1)
-
-if __name__ == "__main__":                              #
-    html = get_html("https://1xstavka.ru/live")          
-    if html:
-        id(html)
-    
-#if __name__ == "__main__":
- #   html = get_html('https://www.olimp.bet/')
-  #  if html:
-   #     get_first_result(html)
-        #with open('olimp.ru.html', "w", encoding="utf8") as f:
-        #   f.write(html)
+def parse_1xstavka():
+    url = 'https://1xstavka.ru/LiveFeed/Get1x2_VZip?count=50&mode=4&country=1&partner=51&getEmpty=true&mobi=true'
+    try:
+        result = requests.get(url)
+        result.raise_for_status()
+        data = result.json()
+        games = []
+        with open(f'1xstavka.json', 'w') as file:
+            file.write(json.dumps(data, indent=4))
+        for items in dict(data).get('Value'):
+            match = {}
+            first_team = items['O1']
+            second_team = items['O2']
+            score_first_team = items['SC']['FS'].get('S1')
+            score_second_team = items['SC']['FS'].get('S2')
+            match['category'] = items.get('L')
+            match['teams'] = {'first': first_team, 'second': second_team}
+            match['score'] = {'first': score_first_team, 'second': score_second_team}
+            coefficients = []
+            for coefficient in items.get('E'):
+                coefficients.append(float(coefficient.get('C')))
+            if len(coefficients) >= 3:
+                match['coefficients'] = {
+                    '1': coefficients[0],
+                    'X': coefficients[1],
+                    '2': coefficients[2]
+                }
+            else:
+                match['coefficients'] = {
+                    '1': None,
+                    'X': None,
+                    '2': None
+                }
+            games.append(match)
+        file_name = f'1xstavka_{int(datetime.now().timestamp())}'
+        # в файл данные записываем временно, потом их нужно будет записать в базу данных.
+        with open(f'{file_name}.json', 'w') as file:
+            file.write(json.dumps(games, indent=4))
+    except (requests.RequestException, ValueError) as e:
+        logger.error(e)
 
 
-       # with open('1xstavka.ru.html', "w", encoding= "utf8") as f:       #записываем результат функции в файл
-        #    f.write(html)'''
+if __name__ == '__main__':
+    parse_1xstavka()
 
-#if __name__ == "__main__":
-    #html = get_html('https://www.ligastavok.ru/')
-    #if html:
-     #    with open('ligastavok.ru.html', "w") as f:
-    #        f.write(html)
- 
-#if __name__ == "__main__":
- #   html = get_html('https://www.pari.ru/')
-  #  if html:
-   #     with open('pari.ru.html', "w", encoding="utf8") as f:
-    #        f.write(html)
+
+
+
