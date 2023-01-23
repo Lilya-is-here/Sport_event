@@ -23,17 +23,25 @@
         </thead>
         <tbody>
             {% for event in events %}
-          <tr>
-            
-            <td colspan="2">{{ event }}</td>
-            
-            </tr>         
-     
-          
-          {% endfor %}
-         
-                       
-        
+            <tr>
+              
+              <td colspan="2">{{ event.name }}</td>
+              <td colspan="2">{{ event.time }}</td>
+             
+              
+              </tr> 
+              <tr>
+                {% if event.name %}
+                {% for coefficient in event.coefficient %}
+                <td colspan="2">{{coefficient.coefficient}}</td>
+                <td colspan="2">{{coefficient.BK}}</td>
+              </tr> 
+                
+
+                {% endfor %}
+                {% endif %}
+              {% endfor %}
+                
         </tbody>
       </table>
 

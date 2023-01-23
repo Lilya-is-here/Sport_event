@@ -18,16 +18,17 @@
           <li class="nav-item"> 
             <a class="nav-link"  href="{{ url_for('user_blueprint.profile') }}"> Привет, {{ current_user.username }}! </a>  
           </li>
-          {% endif %}
+        
         {% if current_user.has_role('admin') %}
           <li class="nav-item">
             <a class="nav-link" href="/admin">Админка</a>
+            {% endif %}
           </li>
-      
+         
           <li class="nav-item">                    
             <a class="nav-link" href="{{ url_for('user_blueprint.logout') }}">Выйти</a>
           </li>   
-        {% else %}
+          {% else %} 
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('user_blueprint.register') }}">Регистрация</a>
           </li>

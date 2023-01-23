@@ -11,8 +11,7 @@ class Event(db.Model):
     sport = db.Column(db.String, nullable=False)
     time = db.Column(db.DateTime, nullable=True, default=datetime.now())
     result = db.Column(db.String, nullable=False)
-    coefficient = db.relationship('Coefficient', backref='event', lazy=True)
-    # как сделать целый объект,  убрать lazy 
+    coefficient = db.relationship('Coefficient', backref='event')
 
     def __repr__(self):
         return "<Event {} {}>".format(
@@ -28,6 +27,20 @@ class Coefficient(db.Model):
     BK = db.Column(db.String, nullable=False)
     Result = db.Column(db.String, nullable=False)
     coefficient = db.Column(db.String, nullable=False)
+    user_bets = db.relationship('User_bet', backref='coefficient')
+
+    def __repr__(self):
+        return "<Results {} {}>".format(
+            self.BK, self.coefficient)
+
+
+class User_bet(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_bet = db.Column(db.Integer, nullable=False)
+    coefficient_id = db.Column(
+        db.Integer, db.ForeignKey('coefficient.id'), nullable=False)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
         return "<Results {} {}>".format(

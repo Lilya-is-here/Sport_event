@@ -1,20 +1,23 @@
-from flask import Flask, render_template, redirect, url_for, request
-from flask_admin import Admin, AdminIndexView
-from flask_admin.contrib.sqla import ModelView
+from flask import Flask, render_template
+from flask_admin import Admin
+
 from flask_login import LoginManager
 from flask_migrate import Migrate
+from webapp.admin import HomeAdminView, AdminView
 
-from flask_security import Security, current_user
+from flask_security import Security
 from webapp.user.views import blueprint as user_blueprint
 
-from webapp.model import db, Coefficient, Event
+from webapp.model import db, Coefficient, Event, User_bet
 from webapp.user.models import User, user_datastore
+from flask_mail import Mail
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_pyfile('config.py')
     db.init_app(app)
+    mail = Mail(app)
 
     login_manager = LoginManager()
     login_manager.init_app(app)
@@ -27,24 +30,12 @@ def create_app():
 
     migrate = Migrate(app, db)
 
-    class AdminMixin:
-        def is_accessible(self):
-            return current_user.has_role('admin')
-
-        def inaccessible_callback(self, name, **kwargs):
-            return redirect(url_for('security.login', next=request.url))
-
-    class AdminView(AdminMixin, ModelView):
-        pass
-
-    class HomeAdminView(AdminMixin, AdminIndexView):
-        pass
-
     admin = Admin(app, 'FlaskApp', url='/',
                   index_view=HomeAdminView(name='Home'))
     admin.add_view(AdminView(User, db.session))
     admin.add_view(AdminView(Event, db.session))
     admin.add_view(AdminView(Coefficient, db.session))
+    admin.add_view(AdminView(User_bet, db.session))
 
     security = Security(app, user_datastore)
 
@@ -52,13 +43,12 @@ def create_app():
     def index():
         title = "Sport event"
         headline = "Hello Sport"
-        events = db.session.query(Event,
-                                  Coefficient).filter(
-                                                      Event.id == Coefficient.event_id).all()
+        events = db.session.query(Event).all()
+
         return render_template(
             "main_page/index.html",
             title=title,
             headline=headline,
-            events=events
+            events=events,
             )
     return app
