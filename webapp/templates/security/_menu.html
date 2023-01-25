@@ -1,0 +1,61 @@
+{% if security.registerable or security.recoverable or security.confirmable or security.unified_signin or security.two_factor or security.webauthn %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<a class="navbar-brand" href="/">Sport event</a>
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  <span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+  <ul class="navbar-nav mr-auto">
+    <li class="nav-item active">
+      
+    </li>         
+  </ul>
+  <form class="form-inline my-2 my-lg-0">
+    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Поиск</button>
+  </form>
+<ul class="navbar-nav">
+  {% if current_user and current_user.is_authenticated %}
+    {# already authenticated user #}
+    <li class="nav-item"> 
+      <a class="nav-link"  href="{{ url_for('user_blueprint.profile') }}"> Привет, {{ current_user.username }}! </a>  
+    </li>
+    {% if current_user.has_role('admin') %}
+    <li class="nav-item">
+      <a class="nav-link" href="/admin">Админка</a>
+      {% endif %}
+    </li>
+    <li class="nav-item"><a class="nav-link"  href="{{ url_for_security('logout') }}">{{ _fsdomain("Выйти") }}</a></li>
+    {% if security.changeable %}
+      <li class="nav-item"><a class="nav-link"  href="{{ url_for_security('change_password') }}">{{ _fsdomain("Change Password") }}</li>
+    {% endif %}
+    {% if security.two_factor %}
+      <li class="nav-item"><a class="nav-link"  href="{{ url_for_security('two_factor_setup') }}">{{ _fsdomain("Two Factor Setup") }}</li>
+    {% endif %}
+    {% if security.unified_signin %}
+      <li class="nav-item"><a class="nav-link"  href="{{ url_for_security('us_setup') }}">{{ _fsdomain("Unified Signin Setup") }}</li>
+    {% endif %}
+    {% if security.webauthn %}
+      <li class="nav-item"><a class="nav-link"  href="{{ url_for_security('wan_register') }}">{{ _fsdomain("WebAuthn Setup") }}</li>
+    {% endif %}
+  {% else %}
+    {% if not skip_login_menu %}
+      <li class="nav-item"><a class="nav-link"  href="{{ url_for_security('login') }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">Войти</a></li>
+    {% endif %}
+    {% if security.unified_signin and not skip_login_menu %}
+    <li class="nav-item"><a class="nav-link"  href="{{ url_for_security('us_signin') }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">{{ _fsdomain("Unified Sign In") }}</a><br/></li>
+    {% endif %}
+    {% if security.registerable %}
+    <li class="nav-item"><a class="nav-link"  href="{{ url_for_security('register') }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">Регистрация</a><br/></li>
+    {% endif %}
+    {% if security.recoverable %}
+    <li class="nav-item"><a class="nav-link"  href="{{ url_for_security('forgot_password') }}">{{ _fsdomain('Forgot password') }}</a><br/></li>
+    {% endif %}
+    {% if security.confirmable %}
+    <li class="nav-item"><a class="nav-link"  href="{{ url_for_security('send_confirmation') }}">Подтвердить аккаунт</a></li>
+    {% endif %}
+  {% endif %}
+</ul>
+</div>
+</nav>
+{% endif %}

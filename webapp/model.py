@@ -1,8 +1,19 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import MetaData
 
+convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
 
-db = SQLAlchemy()
+metadata = MetaData(naming_convention=convention)
+
+db = SQLAlchemy(metadata=metadata)
+
 
 
 class Event(db.Model):
@@ -27,14 +38,14 @@ class Coefficient(db.Model):
     BK = db.Column(db.String, nullable=False)
     Result = db.Column(db.String, nullable=False)
     coefficient = db.Column(db.String, nullable=False)
-    user_bets = db.relationship('User_bet', backref='coefficient')
+    user_bets = db.relationship('UserBet', backref='coefficient')
 
     def __repr__(self):
         return "<Results {} {}>".format(
             self.BK, self.coefficient)
 
 
-class User_bet(db.Model):
+class UserBet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_bet = db.Column(db.Integer, nullable=False)
     coefficient_id = db.Column(
@@ -44,4 +55,4 @@ class User_bet(db.Model):
 
     def __repr__(self):
         return "<Results {} {}>".format(
-            self.BK, self.coefficient)
+            self.user_id, self.user_bet)

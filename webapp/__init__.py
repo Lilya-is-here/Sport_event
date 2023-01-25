@@ -8,9 +8,10 @@ from webapp.admin import HomeAdminView, AdminView
 from flask_security import Security
 from webapp.user.views import blueprint as user_blueprint
 
-from webapp.model import db, Coefficient, Event, User_bet
+from webapp.model import db, Coefficient, Event, UserBet
 from webapp.user.models import User, user_datastore
-from flask_mail import Mail
+from flask_mailman import Mail
+
 
 
 def create_app():
@@ -22,6 +23,7 @@ def create_app():
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'user.login'
+        
     app.register_blueprint(user_blueprint)
 
     @login_manager.user_loader
@@ -35,7 +37,7 @@ def create_app():
     admin.add_view(AdminView(User, db.session))
     admin.add_view(AdminView(Event, db.session))
     admin.add_view(AdminView(Coefficient, db.session))
-    admin.add_view(AdminView(User_bet, db.session))
+    admin.add_view(AdminView(UserBet, db.session))
 
     security = Security(app, user_datastore)
 

@@ -5,6 +5,8 @@ from flask_security import SQLAlchemyUserDatastore
 
 from webapp.model import db
 
+
+
 roles_users = db.Table('roles_users',
                        db.Column('user_id', db.Integer,
                                  db.ForeignKey('user.id')),
@@ -17,13 +19,15 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     password = db.Column(db.String(128))
-    email = db.Column(db.String(50))
-    active = db.Column(db.Boolean)
-    confirmed_at = db.Column(db.DateTime())
+    email = db.Column(db.String(50), unique=True, nullable=False)
+    active = db.Column(db.Boolean, nullable=False)
     coefficient = db.relationship('Coefficient', backref='user', lazy=True)
+    fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
+    confirmed_at = db.Column(db.DateTime())
     roles = db.relationship('Role', secondary=roles_users,
-                            backref=db.backref('users'), lazy='dynamic')
-    user_bets = db.relationship('User_bet', backref='user')
+                            backref=db.backref('users'))
+    user_bets = db.relationship('UserBet', backref='user')
+
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
