@@ -1,10 +1,7 @@
 from flask_security import UserMixin, RoleMixin
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_security import SQLAlchemyUserDatastore
 
-
 from webapp.model import db
-
 
 
 roles_users = db.Table('roles_users',
@@ -27,17 +24,6 @@ class User(db.Model, UserMixin):
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users'))
     user_bets = db.relationship('UserBet', backref='user')
-
-
-    def set_password(self, password):
-        self.password = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password, password)
-
-    @property
-    def is_admin(self):
-        return self.role == 'admin'
 
     def __repr__(self):
         return '<User name={} id={}>'.format(self.username, self.id)

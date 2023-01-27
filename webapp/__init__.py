@@ -3,15 +3,16 @@ from flask_admin import Admin
 
 from flask_login import LoginManager
 from flask_migrate import Migrate
-from webapp.admin import HomeAdminView, AdminView
+from flask_mailman import Mail
 
-from flask_security import Security
+from flask_security import Security, user_registered
+from webapp.admin import HomeAdminView, AdminView
+import logging
+
 from webapp.user.views import blueprint as user_blueprint
 
 from webapp.model import db, Coefficient, Event, UserBet
 from webapp.user.models import User, user_datastore
-from flask_mailman import Mail
-
 
 
 def create_app():
@@ -23,7 +24,6 @@ def create_app():
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'user.login'
-        
     app.register_blueprint(user_blueprint)
 
     @login_manager.user_loader
@@ -40,6 +40,14 @@ def create_app():
     admin.add_view(AdminView(UserBet, db.session))
 
     security = Security(app, user_datastore)
+
+    # Добавление роли к пользователю по дефолту
+    @user_registered.connect_via(app)
+    def user_registered_sighandler(sender, **extra):
+        logging.getLogger(__name__).debug("register handler: %s", extra)
+        user = extra.get("user")
+        user_datastore.add_role_to_user(user, "user")
+        user_datastore.commit()
 
     @app.route('/', methods=['GET', 'POST'])
     def index():

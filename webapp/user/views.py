@@ -1,10 +1,7 @@
 from flask import Blueprint, flash, render_template, redirect, url_for
 from flask_login import logout_user
 from flask_security import login_required, LoginForm, RegisterForm
-from datetime import datetime
 
-from webapp.user.models import User, user_datastore
-from webapp.model import db
 
 blueprint = Blueprint('user_blueprint', __name__, url_prefix='/users')
 
@@ -30,6 +27,7 @@ def register():
     return render_template(
         'security/register_user.html', register_user_form=form
         )
+
 
 @blueprint.route('/profile')
 @login_required
