@@ -35,7 +35,7 @@ class Coefficient(db.Model):
     user_id = db.Column(
         db.Integer, db.ForeignKey('user.id'), nullable=False)
     BK = db.Column(db.String, nullable=False)
-    Result = db.Column(db.String, nullable=False)
+    result = db.Column(db.String, nullable=False)
     coefficient = db.Column(db.String, nullable=False)
     user_bets = db.relationship('UserBet', backref='coefficient')
 

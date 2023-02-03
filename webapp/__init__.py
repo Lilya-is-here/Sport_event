@@ -1,13 +1,16 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify, url_for, redirect, request
 from flask_admin import Admin
 
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
 from flask_mailman import Mail
 
 from flask_security import Security, user_registered
 from webapp.admin import HomeAdminView, AdminView
+from webapp.forms import ChoiceFormEvent
+
 import logging
+
 
 from webapp.user.views import blueprint as user_blueprint
 
@@ -52,13 +55,33 @@ def create_app():
     @app.route('/', methods=['GET', 'POST'])
     def index():
         title = "Sport event"
-        headline = "Hello Sport"
         events = db.session.query(Event).all()
-
+        form = ChoiceFormEvent()
+        form.event.choices = [(event.id,
+                               event.name) for event in Event.query.all()]
+        if request.method == 'POST':
+            coefficient = Coefficient.query.filter_by(id=form.coefficient.data).first()
+            bet = UserBet(coefficient_id=coefficient.id,
+                          user_bet=form.bet.data,
+                          user_id=current_user.id)
+            db.session.add(bet)
+            db.session.commit()
+            return redirect(url_for('user_blueprint.profile'))
         return render_template(
             "main_page/index.html",
             title=title,
-            headline=headline,
-            events=events,
+            events=events, form=form
             )
+
+    @app.route('/coefficient/<get_coefficient>')
+    def events_coefficient(get_coefficient):
+        coefficients = Coefficient.query.filter_by(event_id=get_coefficient).all()
+        coefficientArray = []
+        for coefficient in coefficients:
+            coefficientObj = {}
+            coefficientObj['id'] = coefficient.id
+            coefficientObj['coefficient'] = coefficient.coefficient
+            coefficientArray.append(coefficientObj)
+        return jsonify({'coefficientevent': coefficientArray})
+
     return app
