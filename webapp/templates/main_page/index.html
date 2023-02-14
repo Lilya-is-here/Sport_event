@@ -47,6 +47,7 @@
       </table>
 
   <!-- Modal -->
+  
 
   {% if current_user and current_user.is_authenticated %}
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -83,10 +84,12 @@
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
         {{ form.submit() }}
       </form>
+      
       </div>
     </div>
   </div>
 </div>
+
 {% endif %}
 
 <script>

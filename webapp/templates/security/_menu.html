@@ -51,9 +51,7 @@
     {% if security.recoverable %}
     <li class="nav-item"><a class="nav-link"  href="{{ url_for_security('forgot_password') }}">{{ _fsdomain('Forgot password') }}</a><br/></li>
     {% endif %}
-    {% if security.confirmable %}
-    <li class="nav-item"><a class="nav-link"  href="{{ url_for_security('send_confirmation') }}">Подтвердить аккаунт</a></li>
-    {% endif %}
+    
   {% endif %}
 </ul>
 </div>

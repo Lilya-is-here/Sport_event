@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, url_for, redirect, request
+from flask import Flask, render_template, jsonify, url_for, redirect, request, flash
 from flask_admin import Admin
 
 from flask_login import LoginManager, current_user
@@ -10,7 +10,6 @@ from webapp.admin import HomeAdminView, AdminView
 from webapp.forms import ChoiceFormEvent
 
 import logging
-
 
 from webapp.user.views import blueprint as user_blueprint
 
@@ -56,10 +55,12 @@ def create_app():
     def index():
         title = "Sport event"
         events = db.session.query(Event).all()
+        if not current_user.is_authenticated:
+            flash("Авторизуйтесь для того, чтобы сделать ставку")
         form = ChoiceFormEvent()
         form.event.choices = [(event.id,
                                event.name) for event in Event.query.all()]
-        if request.method == 'POST':
+        if request.method == 'POST' and form.validate:
             coefficient = Coefficient.query.filter_by(id=form.coefficient.data).first()
             bet = UserBet(coefficient_id=coefficient.id,
                           user_bet=form.bet.data,
