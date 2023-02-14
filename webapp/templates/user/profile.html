@@ -12,7 +12,38 @@
     </div>
     {% endif %}
 {% endwith %}
-    </div>    
+    </div>
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col" colspan="4">Футбол</th>
+          </tr>
+        </thead>
+        <tbody>
+           
+            {% for bet in current_user.user_bets %}
+            <tr>
+                <td colspan="4">                          
+                    Ваша ставка: {{ bet.user_bet }} рублей.                 
+                     </td>
+             
+             </tr>          
+            {% if bet %}
+              <tr>
+                <td colspan="2">Коэффициент : {{bet.coefficient.coefficient}}, {{bet.coefficient.result}}</td>
+                
+                {% if bet.coefficient %}
+                <td colspan="2">Событие: {{bet.coefficient.event.name}}</td>
+                {% endif %}
+              </tr>  
+              {% endif %}
+              {% endfor %}
+            </tbody>
+        </table>
+
+             
+           
+
 {% endblock %}
 
 

@@ -14,8 +14,7 @@
     </div>
 
 
-    
-    <table class="table">
+      <table class="table">
         <thead>
           <tr>
             <th scope="col" colspan="4">Футбол</th>
@@ -24,29 +23,93 @@
         <tbody>
             {% for event in events %}
             <tr>
-              
-              <td colspan="2">{{ event.name }}</td>
+              <td colspan="2">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                {{ event.name }}  
+                </button>
+              </td>
               <td colspan="2">{{ event.time }}</td>
-             
-              
-              </tr> 
-              <tr>
+            </tr> 
+            <tr>
                 {% if event.name %}
                 {% for coefficient in event.coefficient %}
-                <td colspan="2">{{coefficient.coefficient}}</td>
-                <td colspan="2">{{coefficient.BK}}</td>
-              </tr> 
                 
+              <td colspan="1">{{coefficient.coefficient}}</td>
+              <td colspan="1">{{coefficient.result}}</td>
+              <td colspan="2">{{coefficient.BK}}</td>
+            </tr>  
 
                 {% endfor %}
                 {% endif %}
-              {% endfor %}
+            {% endfor %}
                 
         </tbody>
       </table>
 
-
- 
-{% endblock %}
+  <!-- Modal -->
   
-    
+
+  {% if current_user and current_user.is_authenticated %}
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Сделайте вашу ставку</h5>
+      </div>
+      <div class="modal-body">
+        <form method="POST">
+          <div class="mb-3">
+            <div class="form-group">
+              <label for="email">
+                Event
+              </label>
+              {{ form.event(class="form-control") }}
+            </div>
+            <div class="form-group">
+              <label for="email">
+                Coefficient
+              </label>
+              {{ form.coefficient(class="form-control") }}
+            </div>
+            </div>
+         <div class="mb-3">
+           <div class="form-group">
+              {{ form.bet.label }} <br>
+              {{ form.bet }}
+          </div>
+          </div>
+       
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+        {{ form.submit() }}
+      </form>
+      
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+
+<script>
+  event_select = document.getElementById('event');
+  coefficient_select = document.getElementById('coefficient');
+
+  event_select.onchange = function() {
+    event = event_select.value;
+    // alert(event);
+    fetch('coefficient/' + event).then(function(response) {
+      response.json().then(function(data) {
+        optionHTML = '';
+        for (coefficient of data.coefficientevent) {
+          optionHTML += '<option value="' + coefficient.id +'">' + coefficient.coefficient + '</option>'
+        } 
+        coefficient_select.innerHTML = optionHTML;
+      });
+    });
+  }
+
+</script>
+
+{% endblock %}
